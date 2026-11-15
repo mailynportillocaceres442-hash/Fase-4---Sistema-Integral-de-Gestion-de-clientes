@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from models.cliente import Cliente, ClienteError
 
 # ==========================================
 # SISTEMA INTEGRAL DE GESTION - SOFTWARE FJ
@@ -30,7 +31,45 @@ def modulo_pendiente(nombre):
         f"El modulo de {nombre} sera implementado "
         "durante el desarrollo del proyecto."
     )
+def abrir_modulo_clientes():
+    ventana_clientes = tk.Toplevel(ventana)
+    ventana_clientes.title("Software FJ - Gestión de Clientes")
+    ventana_clientes.geometry("500x400")
+    ventana_clientes.configure(bg="#F2F4F8")
 
+    tk.Label(ventana_clientes, text="Registro de Clientes", font=("Arial", 14, "bold"), bg="#F2F4F8", fg="#0973F4").pack(pady=15)
+
+    tk.Label(ventana_clientes, text="DNI:", bg="#F2F4F8").pack(anchor="w", padx=40)
+    entry_dni = tk.Entry(ventana_clientes, width=40)
+    entry_dni.pack(padx=40, pady=5)
+
+    tk.Label(ventana_clientes, text="Nombre:", bg="#F2F4F8").pack(anchor="w", padx=40)
+    entry_nombre = tk.Entry(ventana_clientes, width=40)
+    entry_nombre.pack(padx=40, pady=5)
+
+    tk.Label(ventana_clientes, text="Email:", bg="#F2F4F8").pack(anchor="w", padx=40)
+    entry_email = tk.Entry(ventana_clientes, width=40)
+    entry_email.pack(padx=40, pady=5)
+
+    tk.Label(ventana_clientes, text="Teléfono:", bg="#F2F4F8").pack(anchor="w", padx=40)
+    entry_telefono = tk.Entry(ventana_clientes, width=40)
+    entry_telefono.pack(padx=40, pady=5)
+
+    def guardar_cliente():
+        try:
+            nuevo_cliente = Cliente(
+                dni=entry_dni.get(),
+                nombre=entry_nombre.get(),
+                email=entry_email.get(),
+                telefono=entry_telefono.get()
+            )
+            messagebox.showinfo("Éxito", f"Cliente registrado correctamente:\n{nuevo_cliente}")
+            ventana_clientes.destroy()
+        except ClienteError as e:
+            messagebox.showerror("Error de Validación", str(e))
+
+    btn_guardar = tk.Button(ventana_clientes, text="Guardar Cliente", bg="#0973F4", fg="#FFFFFF", font=("Arial", 10, "bold"), command=guardar_cliente)
+    btn_guardar.pack(pady=20)
 
 # ==========================================
 # ENCABEZADO
@@ -116,6 +155,7 @@ opciones = [
 
 # Distribucion de los botones en dos columnas
 for indice, (nombre, descripcion_modulo) in enumerate(opciones):
+    accion = abrir_modulo_clientes if nombre == "CLIENTES" else lambda n=nombre: modulo_pendiente(n)
 
     fila = indice // 2
     columna = indice % 2
@@ -127,6 +167,7 @@ for indice, (nombre, descripcion_modulo) in enumerate(opciones):
         width=32,
         height=3,
         bg=AZUL_CLARO,
+        command=accion,
         fg=AZUL_OSCURO,
         activebackground=AZUL_OSCURO,
         activeforeground=BLANCO,
