@@ -12,23 +12,23 @@ class ClienteError(Exception):
 
 
 class DniInvalidoError(ClienteError):
-    def _init_(self, mensaje="El documento de identidad no es válido."):
-        super()._init_(mensaje)
+    def __init__(self, mensaje="El documento de identidad no es válido."):
+        super().__init__(mensaje)
 
 
 class NombreInvalidoError(ClienteError):
-    def _init_(self, mensaje="El nombre no es válido."):
-        super()._init_(mensaje)
+    def __init__(self, mensaje="El nombre no es válido."):
+        super().__init__(mensaje)
 
 
 class EmailInvalidoError(ClienteError):
-    def _init_(self, mensaje="El correo electrónico es inválido."):
-        super()._init_(mensaje)
+    def __init__(self, mensaje="El correo electrónico es inválido."):
+        super().__init__(mensaje)
 
 
 class TelefonoInvalidoError(ClienteError):
-    def _init_(self, mensaje="El teléfono no es válido."):
-        super()._init_(mensaje)
+    def __init__(self, mensaje="El teléfono no es válido."):
+        super().__init__(mensaje)
 
 
 # ==========================================
@@ -41,7 +41,7 @@ class Cliente:
     Implementa encapsulación y validación de datos.
     """
 
-    def _init_(self, dni: str, nombre: str, email: str, telefono: str):
+    def __init__(self, dni: str, nombre: str, email: str, telefono: str):
         self.dni = dni
         self.nombre = nombre
         self.email = email
