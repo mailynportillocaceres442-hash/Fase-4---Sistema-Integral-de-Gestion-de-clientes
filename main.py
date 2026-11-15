@@ -1,205 +1,347 @@
 import tkinter as tk
 from tkinter import messagebox
-from models.cliente import Cliente, ClienteError
+from pathlib import Path
+import clientes
+
 
 # ==========================================
-# SISTEMA INTEGRAL DE GESTION - SOFTWARE FJ
+# CONFIGURACIÓN GENERAL
 # ==========================================
 
-# Configuracion de la ventana principal
+VENTANA_ANCHO = 1100
+VENTANA_ALTO = 700
+
+COLOR_FONDO = "#F2F5FA"
+COLOR_MENU = "#173B63"
+COLOR_MENU_HOVER = "#245581"
+COLOR_BLANCO = "#FFFFFF"
+COLOR_TEXTO = "#263445"
+COLOR_SECUNDARIO = "#718096"
+COLOR_AZUL = "#2878B5"
+
+
+# ==========================================
+# VENTANA PRINCIPAL
+# ==========================================
+
 ventana = tk.Tk()
-ventana.title("Software FJ - Sistema Integral de Gestion")
-ventana.geometry("950x650")
-ventana.resizable(False, False)
-ventana.configure(bg="#F2F4F8")
+ventana.title("SOFTWARE FJ | Sistema de Gestión")
+ventana.geometry("1100x700")
+ventana.minsize(900, 600)
+ventana.configure(bg=COLOR_FONDO)
 
-# Colores del sistema
-AZUL_OSCURO = "#0973F4"
-AZUL_CLARO = "#DCE6F1"
-FONDO = "#F2F4F8"
-BLANCO = "#FFFFFF"
-GRIS = "#64748B"
+# Centrar ventana
+ancho_pantalla = ventana.winfo_screenwidth()
+alto_pantalla = ventana.winfo_screenheight()
 
+pos_x = (ancho_pantalla - VENTANA_ANCHO) // 2
+pos_y = (alto_pantalla - VENTANA_ALTO) // 2
 
-# ==========================================
-# FUNCIONES DE LOS BOTONES
-# ==========================================
-
-def modulo_pendiente(nombre):
-    messagebox.showinfo(
-        "Modulo en desarrollo",
-        f"El modulo de {nombre} sera implementado "
-        "durante el desarrollo del proyecto."
-    )
-def abrir_modulo_clientes():
-    ventana_clientes = tk.Toplevel(ventana)
-    ventana_clientes.title("Software FJ - Gestión de Clientes")
-    ventana_clientes.geometry("500x400")
-    ventana_clientes.configure(bg="#F2F4F8")
-
-    tk.Label(ventana_clientes, text="Registro de Clientes", font=("Arial", 14, "bold"), bg="#F2F4F8", fg="#0973F4").pack(pady=15)
-
-    tk.Label(ventana_clientes, text="DNI:", bg="#F2F4F8").pack(anchor="w", padx=40)
-    entry_dni = tk.Entry(ventana_clientes, width=40)
-    entry_dni.pack(padx=40, pady=5)
-
-    tk.Label(ventana_clientes, text="Nombre:", bg="#F2F4F8").pack(anchor="w", padx=40)
-    entry_nombre = tk.Entry(ventana_clientes, width=40)
-    entry_nombre.pack(padx=40, pady=5)
-
-    tk.Label(ventana_clientes, text="Email:", bg="#F2F4F8").pack(anchor="w", padx=40)
-    entry_email = tk.Entry(ventana_clientes, width=40)
-    entry_email.pack(padx=40, pady=5)
-
-    tk.Label(ventana_clientes, text="Teléfono:", bg="#F2F4F8").pack(anchor="w", padx=40)
-    entry_telefono = tk.Entry(ventana_clientes, width=40)
-    entry_telefono.pack(padx=40, pady=5)
-
-    def guardar_cliente():
-        try:
-            nuevo_cliente = Cliente(
-                dni=entry_dni.get(),
-                nombre=entry_nombre.get(),
-                email=entry_email.get(),
-                telefono=entry_telefono.get()
-            )
-            messagebox.showinfo("Éxito", f"Cliente registrado correctamente:\n{nuevo_cliente}")
-            ventana_clientes.destroy()
-        except ClienteError as e:
-            messagebox.showerror("Error de Validación", str(e))
-
-    btn_guardar = tk.Button(ventana_clientes, text="Guardar Cliente", bg="#0973F4", fg="#FFFFFF", font=("Arial", 10, "bold"), command=guardar_cliente)
-    btn_guardar.pack(pady=20)
-
-# ==========================================
-# ENCABEZADO
-# ==========================================
-
-encabezado = tk.Frame(
-    ventana,
-    bg=AZUL_OSCURO,
-    height=150
+ventana.geometry(
+    f"{VENTANA_ANCHO}x{VENTANA_ALTO}+{pos_x}+{pos_y}"
 )
+
+
+# ==========================================
+# MENÚ LATERAL
+# ==========================================
+
+menu_lateral = tk.Frame(
+    ventana,
+    bg=COLOR_MENU,
+    width=245
+)
+
+menu_lateral.pack(side="left", fill="y")
+menu_lateral.pack_propagate(False)
+
+
+# Logo
+logo = tk.Label(
+    menu_lateral,
+    text="SOFTWARE FJ",
+    font=("Arial", 22, "bold"),
+    bg=COLOR_MENU,
+    fg=COLOR_BLANCO
+)
+logo.pack(pady=(30, 5))
+
+
+subtitulo = tk.Label(
+    menu_lateral,
+    text="SISTEMA DE GESTIÓN",
+    font=("Arial", 9, "bold"),
+    bg=COLOR_MENU,
+    fg="#B8D4EF"
+)
+subtitulo.pack(pady=(0, 30))
+
+
+# Título del menú
+titulo_menu = tk.Label(
+    menu_lateral,
+    text="MENÚ PRINCIPAL",
+    font=("Arial", 10, "bold"),
+    bg=COLOR_MENU,
+    fg="#B8D4EF",
+    anchor="w"
+)
+titulo_menu.pack(fill="x", padx=22, pady=(0, 12))
+
+
+# ==========================================
+# ÁREA CENTRAL DE CONTENIDO
+# ==========================================
+
+area_principal = tk.Frame(
+    ventana,
+    bg=COLOR_FONDO
+)
+
+area_principal.pack(
+    side="right",
+    fill="both",
+    expand=True
+)
+
+
+# Encabezado
+encabezado = tk.Frame(
+    area_principal,
+    bg=COLOR_BLANCO,
+    height=85
+)
+
 encabezado.pack(fill="x")
 encabezado.pack_propagate(False)
 
+
 titulo = tk.Label(
     encabezado,
-    text="SOFTWARE FJ",
-    font=("Arial", 28, "bold"),
-    fg=BLANCO,
-    bg=AZUL_OSCURO
+    text="Panel de administración",
+    font=("Arial", 21, "bold"),
+    bg=COLOR_BLANCO,
+    fg=COLOR_TEXTO
 )
-titulo.pack(pady=(25, 5))
 
-subtitulo = tk.Label(
-    encabezado,
-    text="Sistema Integral de Gestion",
-    font=("Arial", 16),
-    fg=BLANCO,
-    bg=AZUL_OSCURO
-)
-subtitulo.pack()
+titulo.pack(side="left", padx=30, pady=20)
 
-descripcion = tk.Label(
-    encabezado,
-    text="Administracion de clientes, servicios y reservas",
-    font=("Arial", 10),
-    fg=AZUL_OSCURO,
-    bg=AZUL_CLARO
+
+# Espacio donde aparecerán los módulos
+contenido = tk.Frame(
+    area_principal,
+    bg=COLOR_FONDO
 )
-descripcion.pack(pady=5)
+
+contenido.pack(
+    fill="both",
+    expand=True,
+    padx=30,
+    pady=25
+)
 
 
 # ==========================================
-# MENSAJE DE BIENVENIDA
+# BARRA DE ESTADO
 # ==========================================
 
-bienvenida = tk.Label(
-    ventana,
-    text="¡Bienvenido al sistema!",
-    font=("Arial", 22, "bold"),
-    bg=FONDO,
-    fg=AZUL_OSCURO
+estado = tk.Label(
+    area_principal,
+    text="Sistema iniciado correctamente.",
+    font=("Arial", 9),
+    bg=COLOR_BLANCO,
+    fg=COLOR_SECUNDARIO,
+    anchor="w",
+    padx=20,
+    pady=12
 )
-bienvenida.pack(pady=(30, 5))
 
-instruccion = tk.Label(
-    ventana,
-    text="Seleccione el modulo que desea administrar",
-    font=("Arial", 12),
-    bg=FONDO,
-    fg=GRIS
-)
-instruccion.pack(pady=(0, 25))
+estado.pack(side="bottom", fill="x")
 
 
 # ==========================================
-# MENU PRINCIPAL
+# FUNCIONES DE NAVEGACIÓN
 # ==========================================
 
-menu = tk.Frame(
-    ventana,
-    bg=FONDO
-)
-menu.pack()
+def limpiar_contenido():
 
-opciones = [
-    ("CLIENTES", "Administracion de clientes"),
-    ("RESERVAS", "Gestion de reservas"),
-    ("SALAS", "Reserva de salas"),
-    ("ALQUILER DE EQUIPOS", "Gestion de equipos"),
-    ("ASESORIAS", "Asesorias especializadas"),
-    ("CONSULTAR REGISTROS", "Consulta de operaciones")
+    for widget in contenido.winfo_children():
+        widget.destroy()
+
+
+def mostrar_inicio():
+
+    limpiar_contenido()
+
+    bienvenida = tk.Label(
+        contenido,
+        text="¡Bienvenido a SOFTWARE FJ!",
+        font=("Arial", 22, "bold"),
+        bg=COLOR_FONDO,
+        fg=COLOR_MENU
+    )
+
+    bienvenida.pack(anchor="w", pady=(10, 8))
+
+    descripcion = tk.Label(
+        contenido,
+        text=(
+            "Seleccione uno de los módulos del menú lateral "
+            "para acceder a sus funcionalidades."
+        ),
+        font=("Arial", 11),
+        bg=COLOR_FONDO,
+        fg=COLOR_SECUNDARIO
+    )
+
+    descripcion.pack(anchor="w", pady=(0, 25))
+
+    tarjeta = tk.Frame(
+        contenido,
+        bg=COLOR_BLANCO,
+        highlightbackground="#DCE4EE",
+        highlightthickness=1
+    )
+
+    tarjeta.pack(fill="x", pady=10)
+
+    tk.Label(
+        tarjeta,
+        text="Panel principal",
+        font=("Arial", 16, "bold"),
+        bg=COLOR_BLANCO,
+        fg=COLOR_MENU
+    ).pack(anchor="w", padx=25, pady=(22, 10))
+
+    tk.Label(
+        tarjeta,
+        text=(
+            "Desde esta interfaz podrá acceder a los módulos "
+            "de clientes, servicios, reservas, salas, alquiler "
+            "de equipos, asesorías y consulta de registros.\n\n"
+            "Cada módulo cuenta con un archivo independiente "
+            "dentro del proyecto SOFTWARE FJ."
+        ),
+        font=("Arial", 11),
+        bg=COLOR_BLANCO,
+        fg=COLOR_TEXTO,
+        justify="left",
+        wraplength=650
+    ).pack(anchor="w", padx=25, pady=(0, 25))
+
+    estado.config(text="Página de inicio")
+
+
+def abrir_clientes():
+
+    limpiar_contenido()
+
+    try:
+        clientes.mostrar(contenido)
+
+        estado.config(text="Módulo Clientes abierto correctamente.")
+
+    except Exception as error:
+
+        messagebox.showerror(
+            "Error",
+            f"No fue posible abrir el módulo Clientes:\n{error}"
+        )
+
+
+def mostrar_modulo_pendiente(nombre):
+
+    limpiar_contenido()
+
+    tk.Label(
+        contenido,
+        text=nombre.upper(),
+        font=("Arial", 22, "bold"),
+        bg=COLOR_FONDO,
+        fg=COLOR_MENU
+    ).pack(anchor="w", pady=15)
+
+    tk.Label(
+        contenido,
+        text=f"El módulo {nombre} está pendiente de desarrollo.",
+        font=("Arial", 12),
+        bg=COLOR_FONDO,
+        fg=COLOR_SECUNDARIO
+    ).pack(anchor="w", pady=10)
+
+    estado.config(text=f"Módulo seleccionado: {nombre}")
+
+
+# ==========================================
+# BOTONES DEL MENÚ
+# ==========================================
+
+modulos = [
+    ("Inicio", mostrar_inicio),
+    ("Entidades", lambda: mostrar_modulo_pendiente("Entidades")),
+    ("Clientes", abrir_clientes),
+    ("Servicios", lambda: mostrar_modulo_pendiente("Servicios")),
+    ("Servicios especializados", lambda: mostrar_modulo_pendiente("Servicios especializados")),
+    ("Reservas", lambda: mostrar_modulo_pendiente("Reservas")),
+    ("Salas", lambda: mostrar_modulo_pendiente("Salas")),
+    ("Alquiler de equipos", lambda: mostrar_modulo_pendiente("Alquiler de equipos")),
+    ("Asesorías", lambda: mostrar_modulo_pendiente("Asesorías")),
+    ("Consultar registros", lambda: mostrar_modulo_pendiente("Consultar registros"))
 ]
 
-# Distribucion de los botones en dos columnas
-for indice, (nombre, descripcion_modulo) in enumerate(opciones):
-    accion = abrir_modulo_clientes if nombre == "CLIENTES" else lambda n=nombre: modulo_pendiente(n)
 
-    fila = indice // 2
-    columna = indice % 2
+for nombre, funcion in modulos:
 
     boton = tk.Button(
-        menu,
-        text=f"{nombre}\n{descripcion_modulo}",
-        font=("Arial", 12, "bold"),
-        width=32,
-        height=3,
-        bg=AZUL_CLARO,
-        command=accion,
-        fg=AZUL_OSCURO,
-        activebackground=AZUL_OSCURO,
-        activeforeground=BLANCO,
+        menu_lateral,
+        text=nombre,
+        font=("Arial", 10, "bold"),
+        bg=COLOR_MENU,
+        fg=COLOR_BLANCO,
+        activebackground=COLOR_MENU_HOVER,
+        activeforeground=COLOR_BLANCO,
         relief="flat",
+        bd=0,
         cursor="hand2",
-        command=lambda n=nombre: modulo_pendiente(n)
+        anchor="w",
+        padx=22,
+        pady=9,
+        command=funcion
     )
 
-    boton.grid(
-        row=fila,
-        column=columna,
-        padx=15,
-        pady=10
+    boton.pack(fill="x", padx=8, pady=2)
+
+    boton.bind(
+        "<Enter>",
+        lambda evento, b=boton: b.config(bg=COLOR_MENU_HOVER)
+    )
+
+    boton.bind(
+        "<Leave>",
+        lambda evento, b=boton: b.config(bg=COLOR_MENU)
     )
 
 
 # ==========================================
-# PIE DE PAGINA
+# PIE DEL MENÚ
 # ==========================================
 
-pie = tk.Label(
-    ventana,
-    text="SOFTWARE FJ  |  Sistema de gestion de clientes",
+pie_menu = tk.Label(
+    menu_lateral,
+    text="SOFTWARE FJ\nVersión 1.0",
     font=("Arial", 9),
-    bg=FONDO,
-    fg=GRIS
+    bg=COLOR_MENU,
+    fg="#B8D4EF",
+    justify="center"
 )
-pie.pack(side="bottom", pady=18)
+
+pie_menu.pack(side="bottom", pady=25)
 
 
 # ==========================================
-# EJECUCION DEL SISTEMA
+# INICIAR EN LA PÁGINA DE BIENVENIDA
 # ==========================================
+
+mostrar_inicio()
 
 ventana.mainloop()
