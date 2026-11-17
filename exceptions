@@ -1,0 +1,25 @@
+class ErrorSoftwareFJ(Exception):
+    pass
+
+
+class ErrorValidacion(ErrorSoftwareFJ):
+    def init(self, campo, mensaje):
+        self.campo = campo
+        super().init(f"El campo '{campo}' {mensaje}")
+
+
+class CampoVacioError(ErrorValidacion):
+    def init(self, campo):
+        super().init(campo, "no puede estar vacío.")
+
+
+class AsesoriaInvalidaError(ErrorSoftwareFJ):
+    pass
+
+
+class ClienteInvalidoError(ErrorSoftwareFJ):
+    pass
+
+
+class CalculoCostoError(ErrorSoftwareFJ):
+    pass
