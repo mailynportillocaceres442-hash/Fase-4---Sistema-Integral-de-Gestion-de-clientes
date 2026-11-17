@@ -1,236 +1,210 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-class ModuloAsesorias(tk.Frame):
-    def _init_(self, parent):
-        super()._init_(parent, bg="#f0f4f8")
-        
-        # Diccionario con los temas de asesoría y sus tarifas por hora
+class ModuloAsesorias:
+    def _init_(self, root):
+        self.root = root
+        self.root.title("Software FJ - Módulo de Asesorías")
+        self.root.geometry("950x620")
+        self.root.configure(bg="#f4f7f6")
+
+        # Diccionario de temas y sus tarifas por hora
         self.tarifas_temas = {
-            "Consultoría Técnica": 30000,
-            "Asesoría en Software": 45000,
-            "Soporte Especializado": 25000,
-            "Auditoría de Sistemas": 60000
+            "Consultoría Financiera": 30000,
+            "Asesoría Legal": 45000,
+            "Estrategia Digital": 25000,
+            "Desarrollo de Software": 60000
         }
 
-        # Variables para almacenar los cálculos
-        self.subtotal = 0.0
-        self.descuento = 0.0
-        self.iva = 0.0
-        self.total = 0.0
+        # Variables de control para los cálculos
+        self.subtotal_actual = 0.0
+        self.descuento_actual = 0.0
+        self.iva_actual = 0.0
+        self.total_actual = 0.0
 
-        self.construir_interfaz()
+        self.crear_interfaz()
 
-    def construir_interfaz(self):
-        # --- ENCABEZADO DEL MÓDULO (Estilo igual a Módulo de Clientes) ---
-        header_frame = tk.Frame(self, bg="#d9e6f2", pady=15, padx=25)
-        header_frame.pack(fill="x")
-
-        tk.Label(
-            header_frame,
-            text="MÓDULO DE ASESORÍAS",
-            font=("Segoe UI", 18, "bold"),
-            bg="#d9e6f2",
-            fg="#0f3460"
-        ).pack(anchor="w")
-
-        tk.Label(
-            header_frame,
-            text="Gestione y registre las asesorías brindadas a los clientes",
-            font=("Segoe UI", 10),
-            bg="#d9e6f2",
-            fg="#334e68"
-        ).pack(anchor="w")
-
-        # --- TARJETA DEL FORMULARIO ---
-        card_form = tk.Frame(self, bg="#ffffff", bd=1, relief="solid", padx=25, pady=20)
-        card_form.pack(fill="x", padx=25, pady=15)
-
-        tk.Label(
-            card_form,
-            text="REGISTRAR NUEVA ASESORÍA",
-            font=("Segoe UI", 11, "bold"),
-            bg="#ffffff",
-            fg="#102a43"
-        ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 15))
-
-        # Configurar columnas para que se expandan igual
-        card_form.columnconfigure(0, weight=1)
-        card_form.columnconfigure(1, weight=1)
-
-        # Fila 1: Documento y Nombre del Cliente
-        tk.Label(card_form, text="Documento del cliente:", font=("Segoe UI", 9, "bold"), bg="#ffffff", fg="#334e68").grid(row=1, column=0, sticky="w")
-        self.entry_documento = ttk.Entry(card_form, font=("Segoe UI", 10))
-        self.entry_documento.grid(row=2, column=0, sticky="ew", padx=(0, 15), pady=(3, 12))
-
-        tk.Label(card_form, text="Nombre del cliente:", font=("Segoe UI", 9, "bold"), bg="#ffffff", fg="#334e68").grid(row=1, column=1, sticky="w")
-        self.entry_cliente = ttk.Entry(card_form, font=("Segoe UI", 10))
-        self.entry_cliente.grid(row=2, column=1, sticky="ew", pady=(3, 12))
-
-        # Fila 2: Especialista y Tema (Lista desplegable)
-        tk.Label(card_form, text="Especialista asignado:", font=("Segoe UI", 9, "bold"), bg="#ffffff", fg="#334e68").grid(row=3, column=0, sticky="w")
-        self.entry_especialista = ttk.Entry(card_form, font=("Segoe UI", 10))
-        self.entry_especialista.grid(row=4, column=0, sticky="ew", padx=(0, 15), pady=(3, 12))
-
-        tk.Label(card_form, text="Tema de la asesoría:", font=("Segoe UI", 9, "bold"), bg="#ffffff", fg="#334e68").grid(row=3, column=1, sticky="w")
-        self.combo_tema = ttk.Combobox(
-            card_form,
-            values=list(self.tarifas_temas.keys()),
-            state="readonly",
-            font=("Segoe UI", 10)
+    def crear_interfaz(self):
+        # Título
+        titulo = tk.Label(
+            self.root, text="Software FJ - Gestión de Asesorías",
+            font=("Segoe UI", 16, "bold"), bg="#f4f7f6", fg="#2c3e50"
         )
-        self.combo_tema.grid(row=4, column=1, sticky="ew", pady=(3, 12))
-        self.combo_tema.bind("<<ComboboxSelected>>", self.actualizar_tarifa)
+        titulo.pack(pady=10)
 
-        # Fila 3: Cantidad de Horas y Tarifa Automática
-        tk.Label(card_form, text="Cantidad de horas:", font=("Segoe UI", 9, "bold"), bg="#ffffff", fg="#334e68").grid(row=5, column=0, sticky="w")
-        self.entry_horas = ttk.Entry(card_form, font=("Segoe UI", 10))
-        self.entry_horas.grid(row=6, column=0, sticky="ew", padx=(0, 15), pady=(3, 12))
+        # Marco del Formulario
+        frame_form = tk.LabelFrame(
+            self.root, text="Datos de la Asesoría",
+            font=("Segoe UI", 10, "bold"), bg="#ffffff", padx=15, pady=15
+        )
+        frame_form.pack(fill="x", padx=20, pady=5)
 
-        tk.Label(card_form, text="Tarifa por hora ($):", font=("Segoe UI", 9, "bold"), bg="#ffffff", fg="#334e68").grid(row=5, column=1, sticky="w")
-        self.entry_tarifa = ttk.Entry(card_form, font=("Segoe UI", 10), state="readonly")
-        self.entry_tarifa.grid(row=6, column=1, sticky="ew", pady=(3, 12))
+        # Fila 0: Documento y Nombre del Cliente
+        tk.Label(frame_form, text="Documento del Cliente:", bg="#ffffff").grid(row=0, column=0, sticky="w", pady=5)
+        self.entry_documento = tk.Entry(frame_form, width=30)
+        self.entry_documento.grid(row=0, column=1, padx=10, pady=5)
 
-        # --- BARRA DE CÁLCULOS AUTOMÁTICOS ---
-        frame_calculos = tk.Frame(card_form, bg="#f0f4f8", padx=15, pady=10)
-        frame_calculos.grid(row=7, column=0, columnspan=2, sticky="ew", pady=(5, 15))
+        tk.Label(frame_form, text="Nombre del Cliente:", bg="#ffffff").grid(row=0, column=2, sticky="w", pady=5)
+        self.entry_cliente = tk.Entry(frame_form, width=35)
+        self.entry_cliente.grid(row=0, column=3, padx=10, pady=5)
 
-        self.lbl_subtotal = tk.Label(frame_calculos, text="Subtotal: $0", font=("Segoe UI", 9, "bold"), bg="#f0f4f8", fg="#102a43")
+        # Fila 1: Especialista y Tema (Lista desplegable)
+        tk.Label(frame_form, text="Especialista:", bg="#ffffff").grid(row=1, column=0, sticky="w", pady=5)
+        self.entry_especialista = tk.Entry(frame_form, width=30)
+        self.entry_especialista.grid(row=1, column=1, padx=10, pady=5)
+
+        tk.Label(frame_form, text="Tema de Asesoría:", bg="#ffffff").grid(row=1, column=2, sticky="w", pady=5)
+        self.combo_tema = ttk.Combobox(
+            frame_form, values=list(self.tarifas_temas.keys()),
+            state="readonly", width=32
+        )
+        self.combo_tema.grid(row=1, column=3, padx=10, pady=5)
+        self.combo_tema.bind("<<ComboboxSelected>>", self.asignar_tarifa)
+
+        # Fila 2: Cantidad de Horas y Tarifa Automática
+        tk.Label(frame_form, text="Cantidad de Horas:", bg="#ffffff").grid(row=2, column=0, sticky="w", pady=5)
+        self.entry_horas = tk.Entry(frame_form, width=30)
+        self.entry_horas.grid(row=2, column=1, padx=10, pady=5)
+
+        tk.Label(frame_form, text="Tarifa por Hora ($):", bg="#ffffff").grid(row=2, column=2, sticky="w", pady=5)
+        self.entry_tarifa = tk.Entry(frame_form, width=35, state="readonly")
+        self.entry_tarifa.grid(row=2, column=3, padx=10, pady=5)
+
+        # Panel de Resumen Financiero
+        frame_resumen = tk.Frame(self.root, bg="#e9ecef", bd=1, relief="solid", padx=15, pady=10)
+        frame_resumen.pack(fill="x", padx=20, pady=10)
+
+        self.lbl_subtotal = tk.Label(frame_resumen, text="Subtotal: $0", font=("Segoe UI", 10, "bold"), bg="#e9ecef")
         self.lbl_subtotal.pack(side="left", expand=True)
 
-        self.lbl_descuento = tk.Label(frame_calculos, text="Descuento (10% > $50k): $0", font=("Segoe UI", 9, "bold"), bg="#f0f4f8", fg="#d97706")
+        self.lbl_descuento = tk.Label(frame_resumen, text="Descuento (10%): $0", font=("Segoe UI", 10, "bold"), bg="#e9ecef", fg="#d35400")
         self.lbl_descuento.pack(side="left", expand=True)
 
-        self.lbl_iva = tk.Label(frame_calculos, text="IVA (19%): $0", font=("Segoe UI", 9, "bold"), bg="#f0f4f8", fg="#102a43")
+        self.lbl_iva = tk.Label(frame_resumen, text="IVA (19%): $0", font=("Segoe UI", 10, "bold"), bg="#e9ecef")
         self.lbl_iva.pack(side="left", expand=True)
 
-        self.lbl_total = tk.Label(frame_calculos, text="Total a pagar: $0", font=("Segoe UI", 10, "bold"), bg="#f0f4f8", fg="#0f766e")
+        self.lbl_total = tk.Label(frame_resumen, text="Total a Pagar: $0", font=("Segoe UI", 12, "bold"), bg="#e9ecef", fg="#27ae60")
         self.lbl_total.pack(side="left", expand=True)
 
-        # --- BOTONES (Alineados a la derecha como en tu diseño) ---
-        frame_botones = tk.Frame(card_form, bg="#ffffff")
-        frame_botones.grid(row=8, column=0, columnspan=2, sticky="e")
+        # Botones de Acción
+        frame_botones = tk.Frame(self.root, bg="#f4f7f6")
+        frame_botones.pack(pady=10)
 
         btn_calcular = tk.Button(
-            frame_botones, text="Calcular costo", command=self.calcular_costo,
-            bg="#0284c7", fg="white", font=("Segoe UI", 9, "bold"),
-            relief="flat", padx=15, pady=6, cursor="hand2"
+            frame_botones, text="Calcular Costo", command=self.calcular_costo,
+            bg="#3498db", fg="white", font=("Segoe UI", 10, "bold"), width=18, pady=5
         )
-        btn_calcular.pack(side="left", padx=5)
+        btn_calcular.grid(row=0, column=0, padx=10)
 
         btn_registrar = tk.Button(
-            frame_botones, text="Registrar asesoría", command=self.registrar_asesoria,
-            bg="#1b6ca8", fg="white", font=("Segoe UI", 9, "bold"),
-            relief="flat", padx=15, pady=6, cursor="hand2"
+            frame_botones, text="Registrar Asesoría", command=self.registrar_asesoria,
+            bg="#2ecc71", fg="white", font=("Segoe UI", 10, "bold"), width=18, pady=5
         )
-        btn_registrar.pack(side="left", padx=5)
+        btn_registrar.grid(row=0, column=1, padx=10)
 
         btn_limpiar = tk.Button(
-            frame_botones, text="Limpiar campos", command=self.limpiar_campos,
-            bg="#e2e8f0", fg="#1e293b", font=("Segoe UI", 9, "bold"),
-            relief="flat", padx=15, pady=6, cursor="hand2"
+            frame_botones, text="Limpiar Campos", command=self.limpiar_campos,
+            bg="#e74c3c", fg="white", font=("Segoe UI", 10, "bold"), width=18, pady=5
         )
-        btn_limpiar.pack(side="left", padx=(5, 0))
+        btn_limpiar.grid(row=0, column=2, padx=10)
 
-        # --- SECCIÓN DE LA TABLA INFERIOR ---
-        frame_tabla_contenedor = tk.Frame(self, bg="#f0f4f8", padx=25)
-        frame_tabla_contenedor.pack(fill="both", expand=True, pady=(0, 20))
+        # Tabla de Registros (Treeview)
+        frame_tabla = tk.Frame(self.root)
+        frame_tabla.pack(fill="both", expand=True, padx=20, pady=10)
 
-        tk.Label(
-            frame_tabla_contenedor,
-            text="ASESORÍAS REGISTRADAS",
-            font=("Segoe UI", 11, "bold"),
-            bg="#f0f4f8",
-            fg="#0f3460"
-        ).pack(anchor="w", pady=(0, 8))
+        columnas = ("documento", "cliente", "especialista", "tema", "horas", "subtotal", "descuento", "iva", "total")
+        self.tabla = ttk.Treeview(frame_tabla, columns=columnas, show="headings", height=10)
 
-        # Estilo de cabecera azul para que combine con tu tabla de Clientes
-        style = ttk.Style()
-        style.theme_use("default")
-        style.configure("Treeview.Heading", background="#1b6ca8", foreground="white", font=("Segoe UI", 9, "bold"))
-        style.configure("Treeview", font=("Segoe UI", 9), rowheight=25)
-
-        columnas = ("doc", "cliente", "especialista", "tema", "horas", "subtotal", "desc", "iva", "total")
-        self.tabla = ttk.Treeview(frame_tabla_contenedor, columns=columnas, show="headings", height=6)
-
-        titulos = {
-            "doc": "Documento", "cliente": "Cliente", "especialista": "Especialista",
+        encabezados = {
+            "documento": "Documento", "cliente": "Cliente", "especialista": "Especialista",
             "tema": "Tema", "horas": "Horas", "subtotal": "Subtotal",
-            "desc": "Descuento", "iva": "IVA (19%)", "total": "Total"
+            "descuento": "Descuento", "iva": "IVA (19%)", "total": "Total Pagado"
         }
 
-        for col, texto in titulos.items():
+        for col, texto in encabezados.items():
             self.tabla.heading(col, text=texto)
-            ancho = 110 if col in ("cliente", "especialista", "tema") else 75
+            ancho = 130 if col in ("cliente", "especialista", "tema") else 85
             self.tabla.column(col, width=ancho, anchor="center")
 
         self.tabla.pack(side="left", fill="both", expand=True)
 
-        scroll = ttk.Scrollbar(frame_tabla_contenedor, orient="vertical", command=self.tabla.yview)
-        self.tabla.configure(yscrollcommand=scroll.set)
-        scroll.pack(side="right", fill="y")
+        scrollbar = ttk.Scrollbar(frame_tabla, orient="vertical", command=self.tabla.yview)
+        self.tabla.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
 
-    def actualizar_tarifa(self, event=None):
-        tema = self.combo_tema.get()
-        precio = self.tarifas_temas.get(tema, 0)
-        
+    def asignar_tarifa(self, event=None):
+        tema_seleccionado = self.combo_tema.get()
+        tarifa = self.tarifas_temas.get(tema_seleccionado, 0)
+
         self.entry_tarifa.config(state="normal")
         self.entry_tarifa.delete(0, tk.END)
-        self.entry_tarifa.insert(0, str(precio))
+        self.entry_tarifa.insert(0, str(tarifa))
         self.entry_tarifa.config(state="readonly")
 
     def calcular_costo(self):
         tema = self.combo_tema.get()
-        horas_str = self.entry_horas.get().strip()
+        horas_texto = self.entry_horas.get().strip()
 
         if not tema:
-            messagebox.showwarning("Campo requerido", "Seleccione un tema de asesoría.")
+            messagebox.showwarning("Atención", "Por favor seleccione un tema de asesoría.")
             return False
 
-        if not horas_str.isdigit() or int(horas_str) <= 0:
-            messagebox.showwarning("Dato inválido", "Ingrese una cantidad de horas válida (mayor a 0).")
+        if not horas_texto.isdigit() or int(horas_texto) <= 0:
+            messagebox.showwarning("Atención", "Ingrese una cantidad de horas válida (número entero mayor a 0).")
             return False
 
-        horas = int(horas_str)
+        horas = int(horas_texto)
         tarifa = self.tarifas_temas[tema]
 
-        self.subtotal = tarifa * horas
-        # Aplica 10% de descuento si supera los $50,000
-        self.descuento = self.subtotal * 0.10 if self.subtotal > 50000 else 0.0
-        base_iva = self.subtotal - self.descuento
-        self.iva = base_iva * 0.19
-        self.total = base_iva + self.iva
+        self.subtotal_actual = tarifa * horas
 
-        self.lbl_subtotal.config(text=f"Subtotal: ${self.subtotal:,.0f}")
-        self.lbl_descuento.config(text=f"Descuento (10% > $50k): ${self.descuento:,.0f}")
-        self.lbl_iva.config(text=f"IVA (19%): ${self.iva:,.0f}")
-        self.lbl_total.config(text=f"Total a pagar: ${self.total:,.0f}")
+        # Descuento del 10% si supera los $50,000
+        if self.subtotal_actual > 50000:
+            self.descuento_actual = self.subtotal_actual * 0.10
+        else:
+            self.descuento_actual = 0.0
+
+        base_imponible = self.subtotal_actual - self.descuento_actual
+        self.iva_actual = base_imponible * 0.19
+        self.total_actual = base_imponible + self.iva_actual
+
+        # Actualizar etiquetas visuales
+        self.lbl_subtotal.config(text=f"Subtotal: ${self.subtotal_actual:,.0f}")
+        self.lbl_descuento.config(text=f"Descuento (10%): ${self.descuento_actual:,.0f}")
+        self.lbl_iva.config(text=f"IVA (19%): ${self.iva_actual:,.0f}")
+        self.lbl_total.config(text=f"Total a Pagar: ${self.total_actual:,.0f}")
+
         return True
 
     def registrar_asesoria(self):
-        doc = self.entry_documento.get().strip()
+        documento = self.entry_documento.get().strip()
         cliente = self.entry_cliente.get().strip()
-        esp = self.entry_especialista.get().strip()
+        especialista = self.entry_especialista.get().strip()
         tema = self.combo_tema.get()
         horas = self.entry_horas.get().strip()
 
-        if not doc or not cliente or not esp or not tema:
-            messagebox.showerror("Error", "Por favor complete todos los campos antes de registrar.")
+        if not documento or not cliente or not especialista or not tema:
+            messagebox.showerror("Error", "Todos los campos son obligatorios para registrar.")
             return
 
+        # Recalcular antes de guardar para asegurar datos exactos
         if not self.calcular_costo():
             return
 
+        # Insertar en la tabla inferior
         self.tabla.insert("", tk.END, values=(
-self.tabla.insert("", tk.END, values=(
-            doc, cliente, esp, tema, horas,
-            f"${self.subtotal:,.0f}",
-            f"${self.descuento:,.0f}",
-            f"${self.iva:,.0f}",
-            f"${self.total:,.0f}"
+            documento,
+            cliente,
+            especialista,
+            tema,
+            horas,
+            f"${self.subtotal_actual:,.0f}",
+            f"${self.descuento_actual:,.0f}",
+            f"${self.iva_actual:,.0f}",
+            f"${self.total_actual:,.0f}"
         ))
 
-        messagebox.showinfo("Registro exitoso", "La asesoría se ha registrado correctamente.")
+        messagebox.showinfo("Éxito", "Asesoría registrada correctamente en Software FJ.")
         self.limpiar_campos()
 
     def limpiar_campos(self):
@@ -244,8 +218,17 @@ self.tabla.insert("", tk.END, values=(
         self.entry_tarifa.delete(0, tk.END)
         self.entry_tarifa.config(state="readonly")
 
-        self.subtotal = self.descuento = self.iva = self.total = 0.0
+        self.subtotal_actual = 0.0
+        self.descuento_actual = 0.0
+        self.iva_actual = 0.0
+        self.total_actual = 0.0
+
         self.lbl_subtotal.config(text="Subtotal: $0")
-        self.lbl_descuento.config(text="Descuento (10% > $50k): $0")
+        self.lbl_descuento.config(text="Descuento (10%): $0")
         self.lbl_iva.config(text="IVA (19%): $0")
-        self.lbl_total.config(text="Total a pagar: $0")
+        self.lbl_total.config(text="Total a Pagar: $0")
+
+if _name_ == "_main_":
+    ventana = tk.Tk()
+    app = ModuloAsesorias(ventana)
+    ventana.mainloop()
