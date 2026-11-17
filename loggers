@@ -1,0 +1,27 @@
+import logging
+
+logging.basicConfig(
+    filename="software_fj.log",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    encoding="utf-8"
+)
+
+logger = logging.getLogger("SOFTWARE_FJ")
+
+
+def registrar_evento(mensaje):
+    logger.info(mensaje)
+
+
+def registrar_error(error, contexto=""):
+    logger.error(
+        "%s: %s",
+        contexto,
+        error,
+        exc_info=(
+            type(error),
+            error,
+            error.traceback
+        )
+    )
